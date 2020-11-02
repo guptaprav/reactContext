@@ -1,7 +1,10 @@
-import React, { useState, useReducer } from 'react';
+import React, { useState, useReducer, createContext } from 'react';
 import Filter from './components/Filter';
 import TodoList from './components/TodoList';
 import AddTodo from './components/AddTodo';
+
+export const FilterContext = createContext(null);
+export const TodoContext = createContext(null);
 
 const todoReducer = (state, action) => {
   const { type, payload } = action;
@@ -71,8 +74,6 @@ const initialTodos = [
   },
 ];
 
-
-
 const App = () => {
   const [todos, dispatchTodos] = useReducer(todoReducer, initialTodos);
   const [filter, dispatchFilter] = useReducer(filterReducer, 'ALL');
@@ -92,11 +93,15 @@ const App = () => {
   });
   
   return (
-    <div className="App">
-      <Filter dispatch={dispatchFilter} />
-      <TodoList dispatch={dispatchTodos} todos={filteredTodos} />
-      <AddTodo dispatch={dispatchTodos} todos={todos} />
-    </div>
+    <FilterContext.Provider value={dispatchFilter}>
+    <TodoContext.Provider value={dispatchTodos}>
+      <div className="App">
+        <Filter />
+        <TodoList todos={filteredTodos} />
+        <AddTodo todos={todos} />
+      </div>
+    </TodoContext.Provider>
+    </FilterContext.Provider>
   );
 }
 

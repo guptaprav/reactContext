@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { TodoContext } from '../App';
 
-const AddTodo = ({ dispatch, todos }) => {
+const AddTodo = ({ todos }) => {
+  const dispatch = useContext(TodoContext);
   const [task, setTask] = useState('');
 
   const handleInputChange = evt => {
