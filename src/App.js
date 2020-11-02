@@ -1,4 +1,7 @@
 import React, { useState, useReducer } from 'react';
+import Filter from './components/Filter';
+import TodoList from './components/TodoList';
+import AddTodo from './components/AddTodo';
 
 const todoReducer = (state, action) => {
   const { type, payload } = action;
@@ -68,92 +71,7 @@ const initialTodos = [
   },
 ];
 
-const Filter = ({ dispatch }) => {
-  const handleShowAll = () => {
-    dispatch({ type: 'SHOW_ALL' });
-  };
 
-  const handleShowCompleted = () => {
-    dispatch({ type: 'SHOW_COMPLETED' });
-  };
-
-  const handleShowIncomplete = () => {
-    dispatch({ type: 'SHOW_INCOMPLETE' })
-  };
-
-  return (
-    <div>
-      <button type="button" onClick={handleShowAll}>Show All</button>
-      <button type="button" onClick={handleShowCompleted}>Show Completed</button>
-      <button type="button" onClick={handleShowIncomplete}>Show Incomplete</button>
-    </div>
-  );
-};
-
-const TodoList = ({ dispatch, todos }) => {
-  const handleCompleteChange = todo => {
-    dispatch({
-      type: todo.complete ? 'UNDO_TODO' : 'DO_TODO',
-      payload: todo
-    });
-  };
-  
-  return (
-    <ul>
-      {
-        todos.map(todo => (
-          <li key={todo.id}>
-            <label>
-              <input
-                type="checkbox"
-                checked={todo.complete}
-                onChange={() => handleCompleteChange(todo)}
-              />
-            </label>
-            <label>{todo.task}</label>
-          </li>
-        ))
-      }
-    </ul>
-  );
-};
-
-const AddTodo = ({ dispatch, todos }) => {
-  const [task, setTask] = useState('');
-
-  const handleInputChange = evt => {
-    setTask(evt.target.value);
-  };
-
-  const handleSubmit = evt => {
-    evt.preventDefault();
-
-    if (task) {
-      //add new todo item
-      // unique id, with 
-      const id = todos && todos[todos.length - 1] 
-        ? parseInt(todos[todos.length - 1].id) + 1 + ''
-        : '1';
-        dispatch({
-        type: 'ADD_TODO',
-        payload: { id, task }
-      })
-    }
-
-    setTask('');
-  };
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        value={task}
-        onChange={handleInputChange}
-      />
-      <button type="submit">Add Todo</button>
-    </form>
-  );
-};
 
 const App = () => {
   const [todos, dispatchTodos] = useReducer(todoReducer, initialTodos);
