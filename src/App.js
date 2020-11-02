@@ -1,5 +1,35 @@
 import React, { useState, useReducer } from 'react';
 
+const todoReducer = (state, action) => {
+  const { type, payload } = action;
+
+  switch (type) {
+    case 'DO_TODO':
+      return state.map(todo => {
+        if (todo.id === payload.id) {
+          return { ...todo, complete: true }
+        }
+
+        return todo;
+      });
+    case 'UNDO_TODO':
+      return state.map(todo => {
+        if (todo.id === payload.id) {
+          return { ...todo, complete: false }
+        }
+
+        return todo;
+      });
+    case 'ADD_TODO':
+      return state.concat({
+        id: payload.id,
+        task: payload.task,
+        complete: false
+      });
+    default:
+      return state;
+  }
+}
 const filterReducer = (state, action) => {
   const { type } = action;
 
@@ -39,8 +69,8 @@ const initialTodos = [
 ];
 
 const App = () => {
+  const [todos, dispatchTodos] = useReducer(todoReducer, initialTodos);
   const [filter, dispatchFilter] = useReducer(filterReducer, 'ALL');
-  const [todos, setTodos] = useState(initialTodos);
   const [task, setTask] = useState('');
 
   const handleShowAll = () => {
@@ -72,16 +102,11 @@ const App = () => {
     setTask(evt.target.value);
   };
 
-  const handleCompleteChange = id => {
-    setTodos(
-      todos.map(todo => {
-        if(todo.id === id) {
-          return { ...todo, complete: !todo.complete };
-        }
-
-        return todo;
-      })
-    )
+  const handleCompleteChange = todo => {
+    dispatchTodos({
+      type: todo.complete ? 'UNDO_TODO' : 'DO_TODO',
+      payload: todo
+    });
   };
 
   const handleSubmit = evt => {
@@ -89,18 +114,14 @@ const App = () => {
 
     if (task) {
       //add new todo item
-      if(task) {
-        // unique id, with 
-        const id = todos && todos[todos.length - 1] 
-          ? parseInt(todos[todos.length - 1]) + 1 + ''
-          : '1';
-        
-        setTodos(todos.concat({
-          id,
-          task,
-          complete: false
-        }))
-      }
+      // unique id, with 
+      const id = todos && todos[todos.length - 1] 
+        ? parseInt(todos[todos.length - 1].id) + 1 + ''
+        : '1';
+      dispatchTodos({
+        type: 'ADD_TODO',
+        payload: { id, task }
+      })
     }
 
     setTask('');
@@ -121,7 +142,7 @@ const App = () => {
                 <input
                   type="checkbox"
                   checked={todo.complete}
-                  onChange={() => handleCompleteChange(todo.id)}
+                  onChange={() => handleCompleteChange(todo)}
                 />
               </label>
               <label>{todo.task}</label>
